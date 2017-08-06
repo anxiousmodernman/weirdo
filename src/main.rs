@@ -1,4 +1,12 @@
+// TODO get rid of these, eventually.
+#![allow(unused_variables)]  
+#![allow(unused_imports)]    
+#![allow(dead_code)] 
+
+#[macro_use]
 extern crate vulkano;
+
+use std::sync::Arc;
 
 use vulkano::instance::Instance;
 use vulkano::instance::InstanceExtensions;
@@ -12,23 +20,48 @@ fn main() {
         .expect("failed to create instance");
 
 
-    // let dev = {
-    let devices = PhysicalDevice::enumerate(&instance).find()
+    
+    let devices = PhysicalDevice::enumerate(&instance);
 
-    // let phys PhysicalDevice;
-
-    let mut phys = Option<
+    let mut found = Vec::new();
 
     for dev in devices {
         if dev.name().eq("GTX 1060") {
-            println!("found device")
+            println!("found device {:?}", dev.name());
+            found.push(dev.name());
         }
     }
-        
+}
+
+fn select_device <'a>(instance: &'a Arc<Instance>) -> Option<PhysicalDevice<'a>> {
+    // preferred ranks our choices of supported devices. 
+    let preferred = vec!["GTX 1060"];
+    let devices = PhysicalDevice::enumerate(&instance);
+
+    let mut found = Vec::new();
+
+    for dev in devices {
+        if dev.name().eq("GTX 1060") {
+            println!("found device {:?}", dev.name());
+            found.push(dev.name());
+        }
+    }
+
+    for p in preferred {
+        for f in found {
+            if p == f {
+                let i = found.into_iter().position(|t| t == f ).unwrap();
+                return PhysicalDevice::from_index(&instance, i)
+            }
+        }
+    }
 
 
-    // PhysicalDevice::enumerate(&instance).map(|device| device );
-    // };
-
-
+    // for dev in devices {
+    //     if dev.name().eq("GTX 1060") {
+    //         println!("found device {:?}", dev.name());
+    //         found.push(dev.name());
+    //     }
+    // }
+    None
 }
